@@ -6,5 +6,14 @@
 <body>
     <h1>Welcome to {{ app_name }}</h1>
     <p>This is a Flask application.</p>
+        <form method="POST" action="/button-clicked">
+  <label for="ingredient">Enter ingredient:</label><br>
+  <input type="text" id="ingr" name="ingredient"><br>
+  <label for="expiery">Enter expiery date:</label><br>
+  <input type="text" id="exp" name="expiration"><br>
+  <label for="quantity">Enter quantity:</label><br>
+  <input type="text" id="quant" name="quantity"><br>
+  <button type="submit" >Submit ingredient!</button><br>
+</form>
 </body>
 </html>
