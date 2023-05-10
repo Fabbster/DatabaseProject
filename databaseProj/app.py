@@ -1,5 +1,5 @@
 from flask import Flask
-from config import Config
+# from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template
 import os
@@ -11,8 +11,6 @@ def index():
     title = 'Flask Website'
     app_name = 'My Flask App'
     return render_template('index.html', title=title, app_name=app_name)
-
-
 
 app = Flask(__name__)
 app.config.from_object(Config())
