@@ -1,4 +1,5 @@
 from flask import Flask
+from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template
 import os
@@ -11,8 +12,11 @@ def index():
     app_name = 'My Flask App'
     return render_template('index.html', title=title, app_name=app_name)
 
+
+
 app = Flask(__name__)
-app.config.from_object(os.environ['APP_SETTINGS'])
+app.config.from_object(Config())
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://username:password@localhost:3306/mydatabase'
 db = SQLAlchemy(app)
 
 class User(db.Model):
