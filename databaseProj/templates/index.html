@@ -7,18 +7,19 @@
     <h1>Welcome to {{ app_name }}</h1>
     <p>This is a Flask application.</p>
         <form method="POST" action="/button-clicked">
-  <label for="ingredient">Enter ingredient:</label><br>
-  <input type="text" id="ingr" name="ingredient"><br>
-  <label for="expiery">Enter expiery date:</label><br>
-  <input type="text" id="exp" name="expiration"><br>
-  <label for="quantity">Enter quantity:</label><br>
-  <input type="text" id="quant" name="quantity"><br>
-  <label for="Unit">Enter unit(g, ml, etc.):</label><br>
-  <input type="text" id="unit" name="Unit"><br>
-</form>
-<form method="POST" action="/getdishNames">
-<button type="submit" >Submit ingredient!</button><br>
-</form>
+            <label for="ingredient">Enter ingredient:</label><br>
+            <input type="text" id="ingr" name="ingredient"><br>
+            <label for="expiery">Enter expiery date:</label><br>
+            <input type="text" id="exp" name="expiration"><br>
+            <label for="quantity">Enter quantity:</label><br>
+            <input type="text" id="quant" name="quantity"><br>
+            <label for="Unit">Enter unit(g, ml, etc.):</label><br>
+            <input type="text" id="unit" name="Unit"><br>
+            <button type="submit" >Submit Ingredient.</button><br>
+    </form>
+    <form method="POST" action="/deleteUser">
+        <button type="submit" >Delete Account.</button><br>
+    </form>
 </body>
 </html>
 

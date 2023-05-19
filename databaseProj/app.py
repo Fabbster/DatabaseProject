@@ -1,9 +1,11 @@
 import mysql.connector
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 
 MainPage = Flask(__name__)
 
 app = Flask(__name__)
+
+app.secret_key = 'your_secret_key'
 
 @app.route('/')
 def index():
@@ -11,7 +13,48 @@ def index():
     app_name = 'My Flask App'
     return render_template('Login.html', title=title, app_name=app_name)
 
-_USERNAME = ''
+@app.route('/deleteUser', methods=['POST'])
+def delUser():
+
+    connection = mysql.connector.connect(
+        host='localhost',
+        user='test_user',
+        password='Test123456!',
+        database='recepie_finder'
+    )
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM Users WHERE Username = %s;", (session.get('_USERNAME'),))
+    connection.commit()
+    title = 'Flask Website'
+    app_name = 'My Flask App'
+
+    return render_template('Login.html', title='Account deleted', app_name='My Flask App')
+
+
+@app.route('/createUser', methods=['POST'])
+def addUser():
+    input1 = request.form['C_userName']
+    input2 = request.form['C_password']
+    connection = mysql.connector.connect(
+        host='localhost',
+        user='test_user',
+        password='Test123456!',
+        database='recepie_finder'
+    )
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM Users WHERE Users.UserName = %s;", (input1))
+    results = cursor.fetchall()
+    if results:
+        return render_template('Login.html', title='User already exists!', app_name='My Flask App')
+    
+    #INSERT INTO Users (username, password) VALUES ('Fabian2', '12345');
+    cursor.execute("INSERT INTO Users (username, password) VALUES ('%s','%s')", (input1,input2))
+    connection.commit()
+    title = 'Flask Website'
+    app_name = 'My Flask App'
+
+    return render_template('Login.html', title='Account Created', app_name='My Flask App')
+
 
 @app.route('/Login', methods=['POST'])
 def new_page():
@@ -31,12 +74,13 @@ def new_page():
 
     title = 'Flask Website'
     app_name = 'My Flask App'
-    if (results):
-        _USERNAME = input1
-        return render_template('index.html', title=title, app_name=app_name)
-    
-    title = "Login Failed"
-    return render_template('Login.html', title=title, app_name=app_name)
+
+    if results:
+        session['_USERNAME'] = input1
+        return render_template('index.html', title='Flask Website', app_name='My Flask App')
+
+    return render_template('Login.html', title='Login Failed', app_name='My Flask App')
+
 
 @app.route('/button-clicked', methods=['POST'])
 def button_clicked():
