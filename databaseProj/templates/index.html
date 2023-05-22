@@ -4,32 +4,36 @@
     <title>{{ title }}</title>
 </head>
 <body>
-    <h1>Welcome to {{ app_name }}</h1>
-    <p>This is a Flask application.</p>
-        <form method="POST" action="/addIngredient">
-            <label for="ingredient">Enter ingredient:</label><br>
-            <input type="text" id="ingr" name="ingredient"><br>
-            <label for="expiery">Enter expiery date:</label><br>
-            <input type="text" id="exp" name="expiration"><br>
-            <label for="quantity">Enter quantity:</label><br>
-            <input type="text" id="quant" name="quantity"><br>
-            <label for="Unit">Enter unit(g, ml, etc.):</label><br>
-            <input type="text" id="unit" name="Unit"><br>
-            <button type="submit" >Submit Ingredient.</button><br>
-            <p>Avalible Ingredients</p>
-            <ul>
-                {% for ingredient in _INGREDIENTS %}
-                    <li>{{ ingredient }}</li>
-                {% endfor %}
-            </ul>
-
+    <h1>Welcome to Recepie Finder</h1>
+    <form method="POST" action="/addIngredient">
+        <label for="ingredient">Enter ingredient:</label><br>
+        <input type="text" id="ingr" name="ingredient"><br>
+        <label for="expiration">Enter expiration date:</label><br>
+        <input type="text" id="exp" name="expiration"><br>
+        <label for="quantity">Enter quantity:</label><br>
+        <input type="text" id="quant" name="quantity"><br>
+        <label for="unit">Enter unit(g, ml, etc.):</label><br>  <!-- Update name attribute to "unit" -->
+        <input type="text" id="unit" name="unit"><br>  <!-- Update name attribute to "unit" -->
+        <button type="submit">Submit Ingredient</button><br>
+        <p>Available Ingredients</p>
+        <ul>
+            {% for ingredient in _INGREDIENTS %}
+            <li>{{ ingredient }}</li>
+            {% endfor %}
+        </ul>
     </form>
     <form method="POST" action="/deleteUser">
         <button type="submit" >Delete Account.</button><br>
     </form>
     <form method="POST" action="/findRecepies">
-        <button type="submit" >.</button><br>
+        <button type="submit" >Find recepies</button><br>
     </form>
+    <h1>Avalible Recepies:</h1>
+    <ul>
+        {% for recepie in recepies %}
+        <li>{{ recepie }}</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
 

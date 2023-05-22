@@ -20,7 +20,7 @@ def delUser():
         host='localhost',
         user='test_user',
         password='Test123456!',
-        database='recepie_finder'
+        database='recepiefinder'
     )
     cursor = connection.cursor()
     cursor.execute("DELETE FROM Users WHERE Username = %s;", (session.get('_USERNAME'),))
@@ -29,6 +29,21 @@ def delUser():
     app_name = 'My Flask App'
 
     return render_template('Login.html', title='Account deleted', app_name='My Flask App')
+
+@app.route('/findRecepies', methods=['POST'])
+def getDishes():
+    connection = mysql.connector.connect(
+        host='localhost',
+        user='test_user',
+        password='Test123456!',
+        database='recepiefinder'
+    )
+    cursor = connection.cursor()
+    cursor.execute("CALL GetAvailableDishNames(%s);", (session.get('_USERNAME'),))
+    recepies = cursor.fetchall()
+
+    return render_template('index.html', recepies=recepies)
+
 
 
 @app.route('/createUser', methods=['POST'])
@@ -39,7 +54,7 @@ def addUser():
         host='localhost',
         user='test_user',
         password='Test123456!',
-        database='recepie_finder'
+        database='recepiefinder'
     )
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM Users WHERE Users.UserName = %s;", (input1,))
@@ -65,7 +80,7 @@ def new_page():
         host='localhost',
         user='test_user',
         password='Test123456!',
-        database='recepie_finder'
+        database='recepiefinder'
     )
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM Users WHERE Users.UserName = %s AND Users.Password = %s;", (input1, input2))
@@ -84,16 +99,17 @@ def new_page():
 
 @app.route('/addIngredient', methods=['POST'])
 def button_clicked():
-    #This function will be implemented once Login is done. Since username needs to also be added to the table entry.
     ing = request.form['ingredient']
     exp = request.form['expiration']
-    quant = request.form['quantity']
+    quant = int(request.form['quantity'])
     unit = request.form['unit']
+    
+    # Connect to the MySQL database
     connection = mysql.connector.connect(
         host='localhost',
         user='test_user',
         password='Test123456!',
-        database='recepie_finder'
+        database='recepiefinder'
     )
 
     cursor = connection.cursor()
@@ -101,14 +117,23 @@ def button_clicked():
     print("EXP:", exp)
     print("QUANT:", quant)
     print("USERNAME", session.get('_USERNAME'))
-    cursor.execute("INSERT INTO Produce (ingredient, expirationdate, quantity,RecipeQuantity, username) VALUES ('%s "','"%s"','"%i"','"%s"','"%s );", (ing, exp, quant,unit, session.get('_USERNAME')))   
+    
+    # Insert the ingredient into the Produce table
+    query = "INSERT INTO Produce (Ingredient, ExpirationDate, Quantity, RecipeQuantity, UserName) VALUES (%s, %s, %s, %s, %s)"
+    values = (ing, exp, quant, unit, session.get('_USERNAME'))
+    cursor.execute(query, values)
     connection.commit()
-    cursor.execute("SELECT * FROM Produce WHERE Produce.username = %s", (session.get('_USERNAME'),))
-    results = cursor.fetchall()
 
+    # Fetch all ingredients for the current user from the Produce table
+    cursor.execute("SELECT Ingredient FROM Produce WHERE UserName = %s", (session.get('_USERNAME'),))
+    results = cursor.fetchall()
     _INGREDIENTS = [row[0] for row in results]
 
-    return render_template('index.html', title='added Ingredient', app_name='My Flask App')
+    # Close the database connection
+    cursor.close()
+    connection.close()
+
+    return render_template('index.html', title='Added Ingredient', app_name='My Flask App', _INGREDIENTS=_INGREDIENTS)
 
 if __name__ == '__main__':
     app.run(debug=True)
