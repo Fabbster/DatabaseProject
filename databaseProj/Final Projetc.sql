@@ -89,3 +89,44 @@ BEGIN
 END; //
 
 DELIMITER ;
+
+-- Queryis to be intergrated into the database and wihtin the app.py
+
+-- Query 1: Get total quantity of each ingredient available across all users.
+SELECT Ingredient, SUM(Quantity) as TotalQuantity
+FROM Produce
+GROUP BY Ingredient;
+
+DELIMITER //
+-- Query 2: Function to get the expiration date of a particular ingredient for a specific user.
+CREATE FUNCTION GetExpirationDate (p_UserName VARCHAR(255), p_Ingredient VARCHAR(255)) 
+RETURNS DATE 
+BEGIN 
+    DECLARE expDate DATE; 
+    SELECT ExpirationDate INTO expDate 
+    FROM Produce 
+    WHERE UserName = p_UserName AND Ingredient = p_Ingredient; 
+    RETURN expDate; 
+END // 
+DELIMITER ;
+
+-- You can use this function like this: 
+SELECT GetExpirationDate('hassank1', 'Milk') as ExpirationDate;
+
+DELIMITER //
+-- Query 3: Trigger to update the Quantity in Produce table when a new recipe is added.
+CREATE TRIGGER UpdateProduceQuantity
+AFTER INSERT ON Recipes
+FOR EACH ROW 
+BEGIN
+    UPDATE Produce
+    SET Quantity = Quantity - NEW.Quantity
+    WHERE Ingredient = NEW.Ingredient;
+END; //
+DELIMITER ;
+
+-- Query 4: Get the details of users along with their respective produce details.
+SELECT u.UserName, p.Ingredient, p.ExpirationDate, p.Quantity
+FROM Users u
+JOIN Produce p ON u.UserName = p.UserName;
+
