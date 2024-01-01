@@ -12,11 +12,39 @@
         <input type="password" name="password" placeholder="Enter password">
         <button type="submit">Submit</button>
     </form>
+    <br>
     <form method="POST" action="/createUser">
         <b>Create Account!</b>
         <input type="text" name="C_userName" placeholder="Enter Username">
         <input type="password" name="C_password" placeholder="Enter password">
         <button type="submit">Submit</button>
     </form>
+    
+    <br>
+
+    <form action="/findUsersAndProduce" method="post">
+        <input type="submit" value="Get All Users and Produce">
+    </form>
+    <br>
+    <table>
+        <tr>
+            <th>User Name</th>
+            <th>Ingredient</th>
+            <th>Expiration Date</th>
+            <th>Quantity</th>
+        </tr>
+        {% for item in UsersAndProduce %}
+        <tr>
+            <td>{{ item[0] }}</td>
+            <td>{{ item[1] }}</td>
+            <td>{{ item[2] }}</td>
+            <td>{{ item[3] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+
+
+
 </body>
 </html>

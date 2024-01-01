@@ -12,28 +12,79 @@
         <input type="text" id="exp" name="expiration"><br>
         <label for="quantity">Enter quantity:</label><br>
         <input type="text" id="quant" name="quantity"><br>
-        <label for="unit">Enter unit(g, ml, etc.):</label><br>  <!-- Update name attribute to "unit" -->
-        <input type="text" id="unit" name="unit"><br>  <!-- Update name attribute to "unit" -->
-        <button type="submit">Submit Ingredient</button><br>
-        <p>Available Ingredients</p>
-        <ul>
-            {% for ingredient in _INGREDIENTS %}
-            <li>{{ ingredient }}</li>
-            {% endfor %}
-        </ul>
+        <label for="unit">Enter unit(g, ml, etc.):</label><br>
+        <input type="text" id="unit" name="unit"><br>
+        <button type="submit">Add Ingredient</button><br>
+        <br>
+    </form>
+    <form method="POST" action="/getProduce">
+        <button type="submit" >See Ingredients</button><br>
+    </form>
+    <p>Available Ingredients</p>
+    <ul>
+        {% for ingredient in _INGREDIENTS %}
+        <li>{{ ingredient }}</li>
+        {% endfor %}
+    </ul>
+    <br>
+
     </form>
     <form method="POST" action="/deleteUser">
         <button type="submit" >Delete Account.</button><br>
     </form>
-    <form method="POST" action="/findRecepies">
-        <button type="submit" >Find recepies</button><br>
+
+    <form method="POST" action="/removeExpired">
+        <button type="submit" >Reomve expired food</button><br>
     </form>
-    <h1>Avalible Recepies:</h1>
-    <ul>
-        {% for recepie in recepies %}
-        <li>{{ recepie }}</li>
+    <br>
+
+    <form method="POST" action="/findRecepies">
+        <button type="submit" >Find Recepis</button><br>
+    </form>
+    <table>
+        <tr>
+            <th>Availabe Dishes</th>
+        </tr>
+        {% for item in recepies %}
+        <tr>
+            <td>{{ item[0] }}</td>
+        </tr>
         {% endfor %}
-    </ul>
+    </table>
+
+    <br>
+    <form method="POST" action="/getIngredientsForRecepie">
+        <label for="ingredients">Enter Recepie to check needed Ingredients:</label><br>
+        <input type="text" id="ingr" name="ingredients"><br>
+        <button type="submit">Check Needed Ingredients</button><br>
+    </form>
+    <table>
+        <tr>
+            <th>Dish
+            <th>Ingredient</th>
+            <th>Needed</th>
+            <th>Available</th>
+        </tr>
+            </th>
+        </tr>
+        {% for item in ingredients %}
+        <tr>
+            <td>{{ item[0] }}</td>
+            <td>{{ item[1] }}</td>
+            <td>{{ item[2] }}</td>
+            <td>{{ item[3] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <form method="POST" action="/findeExpirationDate">
+        <label for="checkIngredient">Enter ingredient to check expiration date:</label><br>
+        <input type="text" id="ingr" name="checkIngredient"><br>
+        <button type="submit">Check Expiration</button><br>
+    </form>
+    
+    <p>Expiration Date: {{ expirationDate[0][0] if expirationDate else 'Not found' }}</p>
 </body>
 </html>
 

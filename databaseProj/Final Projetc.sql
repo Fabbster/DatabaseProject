@@ -1,4 +1,3 @@
-
 drop table if exists Produce;
 drop table if exists Users;
 drop table if exists Recipes;
@@ -14,7 +13,6 @@ ExpirationDate Date,
 Quantity int,
 RecipeQuantity varchar(255),
 UserName varchar(255)
-
 );
 
 create table Recipes (
@@ -29,10 +27,10 @@ INSERT INTO Users (Username, Password) VALUES
 ('hassank1', '123456'),
 ('Fabian', '123456');
 INSERT INTO Produce (Ingredient, ExpirationDate, Quantity, RecipeQuantity, UserName) VALUES
-('Milk','2023-05-17','200', 'ml', 'hassank1'),
-('Chicken','2023-05-17','500', 'g', 'hassank1'),
-('Butter','2023-05-17','200', 'g', 'hassank1'),
-('Tomato','2023-05-23','200', 'g', 'Fabian');
+('Milk','2024-1-31','200', 'ml', 'hassank1'),
+('Chicken','2024-1-31','500', 'g', 'hassank1'),
+('Butter','2024-1-31','200', 'g', 'hassank1'),
+('Tomato','2024-1-31','200', 'g', 'Fabian');
 INSERT INTO Recipes (DishName, Ingredient, Quantity, RecipeQuantity) VALUES
 ('Chicken Alfredo','Chicken','500', 'g'),
 ('Chicken Alfredo','Milk','200', 'ml'),
@@ -40,17 +38,22 @@ INSERT INTO Recipes (DishName, Ingredient, Quantity, RecipeQuantity) VALUES
 
 select * from Users;
 select * from Produce;
-#select * from Recipes;
+select * from Recipes;
 
 SELECT * FROM Users WHERE Users.UserName = '%s' AND Users.Password = '%s';
 
 INSERT INTO Produce (ingredients, expirationdate, quantity, username)
 VALUES ('%s', '%s', '%i', '%s');
 
+INSERT INTO Users (username, password) VALUES ('Fabian', '12345');
+
+DELETE FROM Users
+WHERE Username = 'Fabian';
+
+
 drop procedure GetAvailableDishNames if exists
-
 DELIMITER //
-
+# Queri 1: Get the names of dishes that can be made with the ingredients available to a specific user.
 CREATE PROCEDURE GetAvailableDishNames (
   IN p_UserName VARCHAR(50)
 )
@@ -65,21 +68,11 @@ BEGIN
   HAVING COUNT(DISTINCT r.Ingredient) = COUNT(DISTINCT p.Ingredient);
 END //
 DELIMITER ;
-
-
 CALL GetAvailableDishNames('hassank1');
 
-DELIMITER //
-
-
-INSERT INTO Users (username, password) VALUES ('Fabian2', '12345');
-
-DELETE FROM Users
-WHERE Username = 'Fabian';
-
 
 DELIMITER //
-
+# Query 2: Remove the produce of a deleted user.
 CREATE TRIGGER RemoveProduceTrigger
 AFTER DELETE ON Users
 FOR EACH ROW
@@ -90,43 +83,48 @@ END; //
 
 DELIMITER ;
 
--- Queryis to be intergrated into the database and wihtin the app.py
-
--- Query 1: Get total quantity of each ingredient available across all users.
-SELECT Ingredient, SUM(Quantity) as TotalQuantity
-FROM Produce
-GROUP BY Ingredient;
 
 DELIMITER //
--- Query 2: Function to get the expiration date of a particular ingredient for a specific user.
-CREATE FUNCTION GetExpirationDate (p_UserName VARCHAR(255), p_Ingredient VARCHAR(255)) 
+-- Query 3: Function to get the expiration date of a particular ingredient for a specific user.
+CREATE FUNCTION GETEXPIRATIONDATE(P_USERNAME VARCHAR(255), P_INGREDIENT VARCHAR(255)) 
 RETURNS DATE 
+READS SQL DATA
 BEGIN 
-    DECLARE expDate DATE; 
-    SELECT ExpirationDate INTO expDate 
-    FROM Produce 
-    WHERE UserName = p_UserName AND Ingredient = p_Ingredient; 
-    RETURN expDate; 
-END // 
-DELIMITER ;
+    DECLARE expDate DATE;
 
--- You can use this function like this: 
+    SELECT ExpirationDate INTO expDate
+    FROM Produce
+    WHERE UserName = P_USERNAME AND Ingredient = P_INGREDIENT;
+
+    RETURN expDate;
+END //
+DELIMITER ;
 SELECT GetExpirationDate('hassank1', 'Milk') as ExpirationDate;
-
-DELIMITER //
--- Query 3: Trigger to update the Quantity in Produce table when a new recipe is added.
-CREATE TRIGGER UpdateProduceQuantity
-AFTER INSERT ON Recipes
-FOR EACH ROW 
-BEGIN
-    UPDATE Produce
-    SET Quantity = Quantity - NEW.Quantity
-    WHERE Ingredient = NEW.Ingredient;
-END; //
-DELIMITER ;
 
 -- Query 4: Get the details of users along with their respective produce details.
 SELECT u.UserName, p.Ingredient, p.ExpirationDate, p.Quantity
 FROM Users u
 JOIN Produce p ON u.UserName = p.UserName;
 
+-- Query 5: Delete the expired ingredients of a specific user.
+DELIMITER //
+CREATE PROCEDURE DeleteExpiredIngredients(IN p_UserName VARCHAR(255))
+BEGIN
+    DELETE FROM Produce
+    WHERE UserName = p_UserName AND ExpirationDate < CURDATE();
+END //
+DELIMITER ;
+CALL DeleteExpiredIngredients('hassank1');
+
+
+-- Query 6 : Get the details of a specific recipe along with the available quantity of each ingredient.
+SELECT 
+    r.DishName, 
+    r.Ingredient, 
+    CONCAT(r.Quantity, ' ', r.RecipeQuantity) as RequiredQuantity, CONCAT(p.Quantity, ' ', p.RecipeQuantity) as AvailableQuantity
+FROM 
+    Recipes r
+LEFT JOIN 
+    Produce p ON r.Ingredient = p.Ingredient AND p.UserName = 'hassank1'
+WHERE 
+    r.DishName = 'Chicken Alfredo';
